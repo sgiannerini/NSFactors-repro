@@ -1,4 +1,4 @@
-JASA Reproducibility Materials Template
+NSFactors-repro
 ================
 
 This GitHub repository contains a suggested template structure for authors who
