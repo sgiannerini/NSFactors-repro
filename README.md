@@ -1,110 +1,28 @@
 NSFactors-repro
 ================
 
-This GitHub repository contains a suggested template structure for authors who
-submit to JASA (either Applications and Case Studies or Theory and
-Methods) to include materials to reproduce analyses, visualizations, and
-tables.
-
-We provide this template as a default structure that we (the JASA Associate Editors of Reproducibility) think could be
-useful for many projects, either as is or with modifications by authors.
-However, the template is intended to be helpful and is by no means
-required of authors. Authors should consult [our reproducibility
-guide](https://jasa-acs.github.io/repro-guide) for details on what is
-required of reproducibility materials submitted with JASA revisions (not
-required upon initial submission).
-
-## Why is a template repository useful?
-
-The purpose of this template repository is to provide a mechanism for
-author(s) to share their materials via a Git repository, hosted on a
-cloud-based repository manager such as GitHub or GitLab. This provides
-the following advantages for author(s):
-
-1.  Analyses (including code, narrative text, output, plots, etc) can be
-    version controlled (or branched or forked) allowing original
-    author(s) to continue to develop the analyses or other data analysts
-    to build off the analyses. Also iterations and changes to the
-    analysis are then available via the Git commit history.
-2.  Materials are easily available to other researchers.
-3.  Preparing a repository also makes it easy for the JASA Associate
-    Editors for Reproducibility to copy the materials for a JASA article
-    into the JASA GitHub repository where the final paper products are stored
-    after publication (https://github.com/jasa-acs).
-
-## How does the process work?
-
-### Step 1
-
-Author(s) can create a public GitHub repository in their own GitHub account
-by using this template repository. This template contains a basic 
-skeletal structure to help authors structure their code and analyses for their 
-JASA publication. Creating a repository with the template can be done in the following way: 
-
-Click on the "Use this template" button for [this GitHub template repository](https://github.com/jasa-acs/repro-template). (You'll need to be signed in to a GitHub account in order to see the button.)
-
-![Click template button](https://docs.github.com/assets/cb-36544/images/help/repository/use-this-template-button.png)
-
-From there, author(s) can [follow these instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template). However do not optionally select "**Include all branches**" as you do not need this for your own projects. 
+This repository contains the code for replication of the results in the paper 
+"Inference in High-Dimensional Matrix-Valued Time Series with Common Stochastic Trends and Multifactor Error Structure" by 
+Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
 
 
-### Step 2
+## Structure
 
-The author(s) can then directly edit (or replace) the manuscript template files in their own GitHub repository. Author(s) can also add their own data, code, and other files as needed. 
-
-For guidance on getting started with git, we recommend the [Happy with git r](https://happygitwithr.com) tutorials.
-
-**Importantly, the authors should provide an overview of how to carry
-out the analyses presented in their manuscript in the `README.md` of their
-repository, replacing the content in this file.** This overview would
-generally refer to scripts/code files that execute the analyses and are
-placed either in the main directory or the `/code` subdirectory. The
-*Workflow* section of the ACC form should refer to this README.md as
-containing the instructions for how to reproduce the analyses.
-
-### Step 3
-
-Author(s) use `git commit` to track changes over time and use `git push`
-to push changes to a repository on the author(s) personal GitHub
-account.
-
-### Step 4
-
-Author(s) submit a link to their GitHub repository as part of the [JASA
-Reproducibility review process](https://jasa-acs.github.io/repro-guide/),
-required upon submission of an invited revision.
-
-### Step 5
-
-JASA Associate Editors for Reproducibility will review the materials in
-the GitHub repository of the authors and submit a
-reproducibility review as part of the standard JASA review process.
-Authors have the opportunity to respond to the review by making changes
-and pushing their changes to their personal GitHub repository.
-
-### Step 6
-
-Once the manuscript is accepted, the materials in the author(s) personal
-GitHub repository will be copied to the [JASA repository](https://github.com/jasa-acs).
-
-## Reproducibility materials file structure
-
-This template provides a suggested file structure for a JASA submission, but authors are free
-to modify this structure.
-
-The suggested components are as follows. Directories in the submission may have subdirectories to
-further organize the materials.
-
-1.  A `README.md` file - This file gives a short description of the
-    paper and an overview of how to carry out the analyses presented in their manuscript.
-2.  A `manuscript` directory - This directory will generally hold the source files
-    (often LaTeX or Rmd) for the manuscript and any files directly related to the
-    generation of the manuscript, including figure files.
+1.  `README.md` file - This file gives a short description of the
+    paper and an overview of how to carry out the analyses presented in the manuscript.
+2.  `manuscript` directory - It contains 
+       
+       - `NSFactors_repro.Rnw`: Rnw file to reproduce all the figures and tables of both the main article and the Supplement.
+       
 3.  A `data` directory - This directory will generally hold the real data files 
     (or facsimile versions of them in place of confidential data) and simulated data files.
     See `data/README.md` for more details. 
-4.  A `code` directory - This directory will generally hold 
-    source code files that contain the core code to implement the method and various utility/auxiliary functions.
+4.  `code` directory - It contains
+
+      - `Factors_V16.R`  - The library that contains the main routine `FactEst` that implements the 
+         estimation methods of the paper plus auxiliary routines and `EigRatio`, that implements the
+         ER criterion to estimate consistently the number of factors.
+      - 
 5.  An `output` directory - This directory will generally hold objects derived
     from computations, including results of simulations or real data analyses. See `output/README.md` for more details.
 
@@ -116,36 +34,45 @@ manuscript itself. Here we discuss two types of reproducible
 environments and their use. Both virtual and package environments may be
 put in the `code` directory.
 
-### Package environments
+## Language chosen
 
-Package environments capture the set of packages used by a programming
-language needed to generate output. The R programming language has
-`renv`, `switchr` and others to accomplish this, Python has `venv`,
-`conda` and others, and Julia has native support (through the `Pkg`
-package). When submitting these types of environments, the following are
-suggested.
+All the computations were run using `R` both under Windows and Linux. 
+The typical sessionInfo is the following
 
-1.  Clearly indicate (in the overall `README.md`) the language(s) used (including version) 
-    and the package environment tool used (e.g., `renv`, `conda`).
-2.  Use a single package environment for all reproducible content.
-3.  Prefer packages from package archives (CRAN, Bioconductor,
-    RForge.net for example).
-4.  If you use packages from a code repository (GitHub, GitLab, etc.)
-    then use a release version if possible, or indicate the commit used. You could also consider
-    forking the repository and providing a release.
+```
+R version 4.6.0 (2026-04-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26200)
 
-### Virtual environments
+Matrix products: default
+  LAPACK version 3.12.0
+  OpenBLAS version 0.3.33 
+locale:
+[1] LC_COLLATE=Italian_Italy.utf8  LC_CTYPE=Italian_Italy.utf8   
+[3] LC_MONETARY=Italian_Italy.utf8 LC_NUMERIC=C                  
+[5] LC_TIME=Italian_Italy.utf8    
 
-Virtual environments such as Docker and Singlarity capture
-the entire computing environment in which computations were performed.
-In general, they are a more robust solution, capable of taking a
-“snapshot” of a machine, including any system-level utilities and
-external libraries needed to perform your computations. They have the
-advantage that reproducing materials means running the virtual
-environment, rather than recreating the programming language environment.
-If using a virtual environment, we ask that 
-you provide a definition file (e.g., a Dockerfile) or (perhaps better)
-a link to an image in a standard online registry, such as DockerHub.
+time zone: Europe/Rome
+tzcode source: internal
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] kableExtra_1.4.0 knitr_1.51      
+
+loaded via a namespace (and not attached):
+ [1] svglite_2.2.2      cli_3.6.6          rlang_1.2.0        xfun_0.57         
+ [5] stringi_1.8.7      otel_0.2.0         textshaping_1.0.5  glue_1.8.1        
+ [9] htmltools_0.5.9    scales_1.4.0       rmarkdown_2.31     evaluate_1.0.5    
+[13] fastmap_1.2.0      lifecycle_1.0.5    stringr_1.6.0      compiler_4.6.0    
+[17] RColorBrewer_1.1-3 rstudioapi_0.18.0  systemfonts_1.3.2  farver_2.1.2      
+[21] digest_0.6.39      viridisLite_0.4.3  R6_2.6.1           magrittr_2.0.5    
+[25] tools_4.6.0        xml2_1.5.2        
+
+```
+
 
 ## References
 
