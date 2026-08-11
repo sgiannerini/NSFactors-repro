@@ -5,6 +5,13 @@ This repository contains the code for replication of the results in the paper
 "Inference in High-Dimensional Matrix-Valued Time Series with Common Stochastic Trends and Multifactor Error Structure" by 
 Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
 
+We develop a factor model for high-dimensional matrix-valued time series, where both common stochastic 
+trends and common stationary factors are present. We study the estimation of loading spaces, of the common stochastic trends and factors. 
+Standard projection-based techniques fail to improve the rates of convergence compared to a flattened estimation technique 
+which does not take into account the matrix nature of the data. Hence, we develop an iterative procedure based on anti-projections. 
+We show that this estimator succeeds in refining the rates of convergence of the initial, flattened estimator. 
+Monte Carlo evidence shows that our estimators offer a marked improvement compared to the flattened techniques. 
+We validate our theory through an application to a set of multinational macroeconomic indices.
 
 ## Structure
 
@@ -13,10 +20,12 @@ Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
 2.  `manuscript` directory - It contains 
        
        - `NSFactors_repro.Rnw`: Rnw file to reproduce all the figures and tables of both the main article and the Supplement.
+          It uses the `RData` contained in the `output` directory, which can be produced by sourcing
+          the R files contained in the `code` directory. Please take a look at the `setup` chunk to learn about the 
+          configuration used to produce the figures. In particular, notice the use of `dev='tikz'` and `pdfcrop`.
        
-3.  A `data` directory - This directory will generally hold the real data files 
-    (or facsimile versions of them in place of confidential data) and simulated data files.
-    See `data/README.md` for more details. 
+3.  `data` directory - This directory will generally hold the real data files 
+
 4.  `code` directory - It contains 
 
       - `Factors_V16.R`  - The workhorse library that includes 
@@ -24,9 +33,8 @@ Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
         * `EigRatio` - Implements the ER criterion to estimate consistently the number of factors.
         * Auxiliary routines
     
-    
-  Also, it contains the following scripts that can be sourced directly to produce the `RData` files
-  included in the `output` directory:
+    Also, it contains the following scripts that can be sourced directly to produce the `RData` files
+    included in the `output` directory:
     
       - `Section_5_B1.R`
       - `Section_B2.R`
@@ -36,8 +44,8 @@ Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
       - `Table_A3.R`
       - `Table_A4.R`
       
-5.  `output` directory - It contains the outputs of the corresponding `R` scripts contained in the code directory.
-    The outputs are used inside the 
+5.  `output` directory - It contains the outputs of the corresponding `R` scripts contained in the `code` directory.
+    The outputs are used inside `NSFactors_repro.Rnw` to produce figures and tables.
 
       - `Section_5_B1.RData`
       - `Section_B2.RData`
@@ -50,7 +58,7 @@ Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
 
 ## Language details and session info
 
-All the computations were run using `R 4.6.0` linked against OpenBLAS in a multicore environment, 
+All the computations were run using `R 4.6.0` linked against `OpenBLAS version 0.3.33` in a multicore environment, 
 both under Windows and Linux. The typical sessionInfo under Windows is the following
 
 ```
