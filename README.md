@@ -17,27 +17,41 @@ Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
 3.  A `data` directory - This directory will generally hold the real data files 
     (or facsimile versions of them in place of confidential data) and simulated data files.
     See `data/README.md` for more details. 
-4.  `code` directory - It contains
+4.  `code` directory - It contains 
 
-      - `Factors_V16.R`  - The library that contains the main routine `FactEst` that implements the 
-         estimation methods of the paper plus auxiliary routines and `EigRatio`, that implements the
-         ER criterion to estimate consistently the number of factors.
-      - 
-5.  An `output` directory - This directory will generally hold objects derived
-    from computations, including results of simulations or real data analyses. See `output/README.md` for more details.
+      - `Factors_V16.R`  - The workhorse library that includes 
+        * `FactEst` - the main routine  that implements the estimation methods of the paper 
+        * `EigRatio` - Implements the ER criterion to estimate consistently the number of factors.
+        * Auxiliary routines
+    
+    
+  Also, it contains the following scripts that can be sourced directly to produce the `RData` files
+  included in the `output` directory:
+    
+      - `Section_5_B1.R`
+      - `Section_B2.R`
+      - `Section_B3.R`
+      - `Table_A1.R`
+      - `Table_A2.R`
+      - `Table_A3.R`
+      - `Table_A4.R`
+      
+5.  `output` directory - It contains the outputs of the corresponding `R` scripts contained in the code directory.
+    The outputs are used inside the 
 
-## Guidance on the use of reproducible environments
+      - `Section_5_B1.RData`
+      - `Section_B2.RData`
+      - `Section_B3.RData`
+      - `Table_A1.RData`
+      - `Table_A2.RData`
+      - `Table_A3.RData`
+      - `Table_A4.RData`
 
-Submissions may include the use of reproducible environments capturing
-state of a machine generating manuscript artifacts and even the
-manuscript itself. Here we discuss two types of reproducible
-environments and their use. Both virtual and package environments may be
-put in the `code` directory.
 
-## Language chosen
+## Language details and session info
 
-All the computations were run using `R` both under Windows and Linux. 
-The typical sessionInfo is the following
+All the computations were run using `R 4.6.0` linked against OpenBLAS in a multicore environment, 
+both under Windows and Linux. The typical sessionInfo under Windows is the following
 
 ```
 R version 4.6.0 (2026-04-24 ucrt)
@@ -76,14 +90,6 @@ loaded via a namespace (and not attached):
 
 ## References
 
-Gentleman, Robert, and Duncan Temple Lang. “[Statistical Analyses and
-Reproducible
-Research](http://biostats.bepress.com/cgi/viewcontent.cgi?article=1001&context=bioconductor).”
-(2004).
-
-Gentleman, Robert. “[Reproducible research: a bioinformatics case
-study](https://www.degruyter.com/document/doi/10.2202/1544-6115.1034/html).”
-Statistical applications in genetics and molecular biology 4.1 (2005).
-
-Marwick, Ben, and Bryan, Jennifer, and Attali, Dean, and Hollister,
-Jeffrey W. [rrrpkg Github Page](https://github.com/ropensci/rrrpkg).
+Chen, R., Giannerini, S., Goracci, G., & Trapani, L. (2025). 
+Inference in matrix-valued time series with common stochastic trends and multifactor error structure. 
+arXiv preprint [arXiv:2501.01925](https://arxiv.org/abs/2501.01925).

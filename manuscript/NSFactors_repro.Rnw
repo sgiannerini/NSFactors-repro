@@ -1,0 +1,623 @@
+\documentclass[10pt]{amsart}
+% 
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{here}
+\usepackage[foot]{amsaddr}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[colorlinks,citecolor=OliveGreen,linkcolor=blue,backref,hypertexnames=false]{hyperref}
+
+
+% GEOMETRY -------------------
+\topmargin-1.0cm
+\textwidth16.5cm
+\textheight22.89cm
+\oddsidemargin-0.0cm
+\evensidemargin.0cm
+\thispagestyle{empty}
+\parindent0cm
+% GEOMETRY -------------------
+
+% OUR COMMANDS AND MACROS  -------------------
+\newcommand{\F}{\mathbf{F}}
+\newcommand{\R}{\mathbf{R}}
+\newcommand{\E}{\mathbf{E}}
+\newcommand{\C}{\mathbf{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\blue}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\proj}[1]{{\overset{\diamond}{#1}}}
+% OUR COMMANDS AND MACROS  -------------------
+
+\addtolength{\textwidth}{1cm}
+%\addtolength{\textheight}{3cm}
+%\setlength{\oddsidemargin}{10pt}
+%\setlength{\evensidemargin}{10pt}
+%\setlength{\topmargin}{0pt}
+%\setlength{\voffset}{0pt}
+
+\title[Reproducibility Document]{Dynamic document to reproduce Tables and Figures of the paper: ``Inference in high-dimensional matrix-valued time series with common stochastic trends and multifactor error structure''.}
+
+\author{Lorenzo Trapani$^1$\textsuperscript{,}$^2$}
+\email{lorenzo.trapani@unipv.it}
+\author{Greta Goracci$^3$}
+\email{greta.goracci@unibz.it}
+\author{Rong Chen$^4$}
+\email{rongchen@stat.rutgers.edu}
+\author{Simone Giannerini$^5$}
+\email{simone.giannerini@uniud.it}
+
+\address{$^1$Department of Economics and Management Science, Universita' di Pavia, Italy}
+\address{$^2$School of Economics, University of Leicester, UK}
+\address{$^3$Free University of Bozen-Bolzano, Faculty of Economics and Management, Bolzano, Italy}
+\address{$^4$Department of Statistics, School of Arts and Sciences, Rutgers University, NJ USA}
+\address{$^5$Dipartimento di scienze economiche e statistiche, Università di Udine, Italy}
+
+
+\begin{document}
+<<setup,echo=FALSE,message=FALSE,warning=FALSE,cache=FALSE>>=
+    library(xtable)
+    library(kableExtra)
+    opts_chunk$set(fig.dim=c(4.5,4.5), out.width="0.4\\linewidth", size='small', echo=FALSE, message=FALSE, dev='tikz', fig.align="center", cache=TRUE,background="#F7F7F7", comment=NA, fig.show='hold', cache.path='cache/', fig.path='figures/',crop=TRUE,out.extra='keepaspectratio')
+    options(continue='   ', width=100, digits=7)
+    opts_knit$set(use.highlight=TRUE, concordance = TRUE)
+    knit_hooks$set(crop = hook_pdfcrop)
+    options(tikzDefaultEngine = 'luatex')
+@
+<<settings>>=
+ lwd.acf <- 6
+ col.acf <- 'red4'
+ ## Custom colours
+
+rval   <- col2rgb('blue')
+bluet  <- rgb(red=rval[1], green=rval[2], blue=rval[3], alpha=100, names = "bluet",
+maxColorValue = 255)
+
+rval   <- col2rgb('lightblue')
+lbluet <- rgb(red=rval[1], green=rval[2], blue=rval[3], alpha=120, names = "lbluet",
+maxColorValue = 255)
+@
+<<helpers>>=
+
+## -----------------------------------------
+subtab_labels <- list(
+  "1" = "$\\widetilde{\\R}_0$",
+  "2" = "$\\widetilde{\\C}_0$",
+  "5" = "$\\widetilde{\\R}_1$",
+  "6" = "$\\widetilde{\\C}_1$",
+  "7" = "$\\proj \\R_1$",
+  "8" = "$\\proj \\C_1$"
+)
+## -----------------------------------------
+make_subtable <- function(x, j, i){
+
+  dum <- x[j,,,i] / x[j,,,i+2]
+  dum <- as.data.frame(dum)
+
+  tab <- data.frame(
+    T = nset,
+    dum,
+    check.names = FALSE
+  )
+
+  names(tab) <- c("$T$", p1set)
+
+  out <- kbl(
+    tab,
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE,
+    row.names = FALSE,
+    digits = 2,
+    align = c("c", rep("c", length(p1set)))
+  ) |>
+    add_header_above(
+      c(" " = 1, "$p_1$" = length(p1set)),
+      escape = FALSE,
+      line = TRUE,
+      line_sep = 0
+    )
+
+  out <- as.character(out)
+
+  ## remove only the unwanted upper full rule
+  out <- sub("\\\\toprule\n", "", out)
+
+  ## make the body rules match the cmidrule style
+  out <- sub("\\\\midrule", "\\\\cmidrule(lr){2-5}", out)
+  out <- sub("\\\\bottomrule", "\\\\cmidrule(lr){2-5}", out)
+
+  out
+}
+## -----------------------------------------
+make_cell <- function(x, j, i){
+  paste0(
+    "\\begin{minipage}[t]{\\linewidth}\n",
+    "\\centering\n",
+    "\\makebox[\\linewidth][c]{\\textbf{",
+    subtab_labels[[as.character(i)]],
+    "}}\\par\\smallskip\n",
+    make_subtable(x, j, i),
+    "\n\\end{minipage}"
+  )
+}
+@
+\maketitle
+
+%%%  ***************************************************************************************************
+%%%  ***************************************************************************************************
+\section{Section 5 and Section B.1 of the Supplement}
+%%%  ***************************************************************************************************
+%%%  ***************************************************************************************************
+<<Section 5>>=
+ load('Section_5_B1.RData')
+ppnames <- c('R0p','C0p','R1p','C1p','R1p2','C1p2')
+casenames <- paste('case',rep(1:4,each=2),rep(1:2,2),sep='.') 
+rRES <- array(NA_real_,dim=c(lnset,lp1set,length(ppnames)))
+dimnames(rRES)  <- list(nset,p1set,ppnames)
+ k <- 1
+ for(i in c(1,2,5:8)){
+  dum <- mRES[,,i]/mRES[,,i+2]
+  rRES[,,k] <- dum
+  k <- k+1
+}
+pnames2 <- c('$\\hat\\R_0$','$\\hat\\C_0$','$\\tilde\\R_0$','$\\tilde\\C_0$','$\\hat\\R_1$','$\\hatC_1$','$\\tilde\\R_1$','$\\tilde\\C_1$','$\\proj\\R_1$','$\\proj\\C_1$')
+@
+
+
+%%-----------------------------------------------------------------------
+\subsection{Figure 4.1}
+%%-----------------------------------------------------------------------
+
+
+\begin{center}
+<<Figure 4.1, dependson='Section 5'>>=
+for(i in c(5,6)){ 
+  dum <- mRES[,,i]/mRES[,,i+2];
+  a   <- min(min(dum),1)
+  b   <- max(dum)
+  matplot(x=nset,y=dum,lty=1,xlab='$T$',ylim=c(a,b),lwd=1.5,type='b',col=1:lp1set,pch=16,ylab='$\\D_{\\text{init}}/\\D_{\\text{proj}}$');grid()
+  axis(1,at=nset)
+  legend('topleft',legend=pnames2[i+2],adj=0.5)
+  abline(h=1,lty=3,col=2)
+  legend('bottomright',col=1:lp1set,pch='',lwd=2,legend=paste0('$p_1 =$ ',p1set)) 
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure 4.2}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure 4.2, dependson='Section 5'>>=
+for(i in c(1,2)){ 
+  dum <- mRES[,,i]/mRES[,,i+2];
+  a   <- min(min(dum),1)
+  b   <- max(dum)
+  matplot(x=nset,y=dum,lty=1,xlab='$T$',ylim=c(a,b),lwd=1.5,type='b',col=1:lp1set,pch=16,ylab='$\\D_{\\text{init}}/\\D_{\\text{proj}}$');grid()
+  axis(1,at=nset)
+  legend('topleft',legend=pnames2[i+2],adj=0.5)
+  abline(h=1,lty=3,col=2)
+  legend('bottomright',col=1:lp1set,pch='',lwd=2,legend=paste0('$p_1 =$ ',p1set)) 
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure B.1}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure B.1, dependson='Section 5'>>=
+for(i in c(7,8)){ 
+  dum <- mRES[,,i]/mRES[,,i+2];
+  a   <- min(min(dum),1)
+  b   <- max(dum)
+  matplot(x=nset,y=dum,lty=1,xlab='$T$',ylim=c(a,b),lwd=1.5,type='b',col=1:lp1set,pch=16,ylab='$\\D_{\\text{init}}/\\D_{\\text{proj}}$');grid()
+  axis(1,at=nset)
+  legend('topleft',legend=pnames2[i+2],adj=0.5)
+  abline(h=1,lty=3,col=2)
+  legend('bottomright',col=1:lp1set,pch='',lwd=2,legend=paste0('$p_1 =$ ',p1set)) 
+}
+@
+\end{center}
+
+
+
+\newpage
+
+%% ----------------------------------------------------------------------------
+\subsection{Tables~B.1--B.8 of the Supplement}
+%% ----------------------------------------------------------------------------
+\phantom{.}\\
+<<Tables B.1-B.8, results='asis', echo=FALSE, message=FALSE, warning=FALSE, dependson='Section 5'>>=
+
+## first row: R-tables
+iset_R <- c(1, 5, 7)
+
+## second row: C-tables
+iset_C <- c(2, 6, 8)
+
+
+for(j in 1:lpset){
+  cat("-----------------\n")
+  cat("\\smallskip \n\n")
+  cat("TABLE B.",j,"\n\n\n",sep='')
+  cat("-----------------\n")
+  cat("\\begin{table}[H]\n")
+  cat("\\centering\n")
+
+  cat("\\begin{tabular}{@{}p{0.30\\textwidth}@{\\hspace{0.04\\textwidth}}p{0.30\\textwidth}@{\\hspace{0.04\\textwidth}}p{0.30\\textwidth}@{}}\n")
+
+  cat(make_cell(mcRES, j, iset_R[1]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_R[2]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_R[3]))
+cat(" \\\\\n")
+cat("\\noalign{\\vskip 2em}\n")
+
+  cat(make_cell(mcRES, j, iset_C[1]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_C[2]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_C[3]))
+  cat(" \n")
+
+  cat("\\end{tabular}\n")
+
+  cat("\\end{table}\n")
+  if(j %in% c(2,4,6)) cat("\\newpage\n")
+}
+@
+
+
+
+\newpage
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+\section{Section B.2 of the Supplement}
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+
+%% ----------------------------------------------------------------------------
+\subsection{Figure B.2}
+%% ----------------------------------------------------------------------------
+\begin{center}
+<<Figure B.2>>=
+ load('Section_B2.RData');
+ for(i in c(1,2,5:8)){ 
+  dum <- mRES[,,i]/mRES[,,i+2];
+  a   <- min(min(dum),1)
+  b   <- max(dum)
+  matplot(x=nset,y=dum,lty=1,xlab='$T$',ylim=c(a,b),lwd=1.5,type='b',col=1:lp1set,pch=16,ylab='$\\D_{\\text{init}}/\\D_{\\text{proj}}$');grid()
+  axis(1,at=nset)
+  legend('topleft',legend=pnames2[i+2],adj=0.5)
+  abline(h=1,lty=3,col=2)
+  legend('bottomright',col=1:lp1set,pch='',lwd=2,legend=paste0('$p_1 =$ ',p1set))
+ }
+@
+\end{center}
+
+\newpage
+
+%% ----------------------------------------------------------------------------
+\subsection{Tables~B.9--B.16 of the Supplement}
+%% ----------------------------------------------------------------------------
+\phantom{.}\\
+<<Tables B.9-B.16, results='asis', echo=FALSE, message=FALSE, warning=FALSE, dependson='Figure B.2'>>=
+for(j in 1:lpset){
+  cat("-----------------\n")
+  cat("\\smallskip \n\n")
+  cat("TABLE B.",j+8,"\n\n\n",sep='')
+  cat("-----------------\n")
+  cat("\\begin{table}[H]\n")
+  cat("\\centering\n")
+
+  cat("\\begin{tabular}{@{}p{0.30\\textwidth}@{\\hspace{0.04\\textwidth}}p{0.30\\textwidth}@{\\hspace{0.04\\textwidth}}p{0.30\\textwidth}@{}}\n")
+
+  cat(make_cell(mcRES, j, iset_R[1]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_R[2]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_R[3]))
+cat(" \\\\\n")
+cat("\\noalign{\\vskip 2em}\n")
+
+  cat(make_cell(mcRES, j, iset_C[1]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_C[2]))
+  cat(" & ")
+  cat(make_cell(mcRES, j, iset_C[3]))
+  cat(" \n")
+
+  cat("\\end{tabular}\n")
+
+  cat("\\end{table}\n\n")
+  if(j %in% c(2,4,6)) cat("\\newpage\n")
+}
+@
+
+\newpage  
+
+
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+\section{Section B.3 of the Supplement}
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+
+%%%%  ***************************************************************************************************
+\subsection{Figure B.3}
+%%%%  ***************************************************************************************************
+
+
+
+\begin{center}
+<<Figure B.3, fig.dim=c(10,6),out.width='0.99\\linewidth'>>=
+load('Section_B3.RData');
+hnames2 <- c('$h_{R_0}$','$h_{C_0}$','$h_{R_1}$','$h_{C_1}$')
+a <- min(percs)
+par(mfrow=c(4,lp1set),omi=c(0.5,0.5,0.5,0),mai=c(0,0,0,0))
+for(j in 1:4){
+    for(k in 1:lp1set){
+      p1 <- p1set[k]
+     dum <- t(percs[k,j,,])
+    boxplot(dum, ylab='', ylim=c(a,100),col='lightyellow',xaxt='n',yaxt='n')
+    abline(h=0,col=2,lty=2);grid()
+    if(k == 1)  axis(2)
+    if(j == 4)  axis(1,at=1:lnset,labels=nset,cex.lab=1.2)
+    if(k == 1)  mtext(text=hnames2[j], side=2, at=60, line=2.5, cex=1.2)
+    if(j == 1)  mtext(text=paste0('$p_1 =$ ',p1), side=3, at=2.5, line=1, cex=1.2)
+  }
+}
+mtext(text='$T$',side=1,at=-4,line=2.5)
+@
+\end{center}
+
+\newpage
+
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+\section{Section A.1 of the Supplement}
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+
+%%%%  ***************************************************************************************************
+\subsection{Table A.1}
+%%%%  ***************************************************************************************************
+
+
+\begin{center}
+<<Table A.1, results='asis'>>=
+ load('Table_A1.RData')
+for(i in 1:3){
+for(k in 1:2){
+  dum <- perci[,k,,i]
+  dum <- as.data.frame(dum)
+
+  tab <- data.frame(
+    T = nset,
+    dum,
+    check.names = FALSE
+  )
+
+  names(tab) <- c("$T$", p1set)
+hspan <- 5
+names(hspan) <- paste0('Case ',i,' -- ',hnames2[k]) 
+  out <- kbl(
+    tab,
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE,
+    row.names = FALSE,
+    digits = 2,
+    align = c("c", rep("c", length(p1set)))
+  ) |>
+    add_header_above(
+      c(" " = 1, "$p_1$" = length(p1set)),
+      escape = FALSE,
+      line = TRUE,
+      line_sep = 0
+    ) |>
+    add_header_above(
+    header=hspan,
+      escape = FALSE,
+      line = FALSE,
+      line_sep = 0,
+      align='l'
+    )
+  cat(out)
+}
+cat('\\bigskip\n')
+}
+@
+\end{center}
+\newpage
+
+%%%%  ***************************************************************************************************
+\subsection{Table A.2}
+%%%%  ***************************************************************************************************
+
+
+\begin{center}
+<<Table A.2, results='asis'>>=
+load('Table_A2.RData')
+for(i in 1:3){
+for(k in 3:4){
+  dum <- perci[,k,,i]
+  dum <- as.data.frame(dum)
+
+  tab <- data.frame(
+    T = nset,
+    dum,
+    check.names = FALSE
+  )
+
+  names(tab) <- c("$T$", p1set)
+hspan <- 5
+names(hspan) <- paste0('Case ',i,' -- ',hnames2[k]) 
+  out <- kbl(
+    tab,
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE,
+    row.names = FALSE,
+    digits = 2,
+    align = c("c", rep("c", length(p1set)))
+  ) |>
+    add_header_above(
+      c(" " = 1, "$p_1$" = length(p1set)),
+      escape = FALSE,
+      line = TRUE,
+      line_sep = 0
+    ) |>
+    add_header_above(
+    header=hspan,
+      escape = FALSE,
+      line = FALSE,
+      line_sep = 0,
+      align='l'
+    )
+  cat(out)
+}
+cat('\\bigskip\n')
+}
+@
+\end{center}
+
+\newpage
+
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+\section{Section A.3 of the Supplement}
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+
+%%%%  ***************************************************************************************************
+\subsection{Table A.3}
+%%%%  ***************************************************************************************************
+
+
+\begin{center}
+<<Table A.3, results='asis'>>=
+load('Table_A3.RData')
+
+for(i in 1:laset){
+  for(k in 3:4){
+    dum <- perci1[, k, , i, drop = FALSE]
+    dum <- matrix(dum, nrow = lp1set, ncol = lnset,
+                  dimnames = list(p1set, nset))
+    dum <- as.data.frame(dum, check.names = FALSE)
+
+    tab <- data.frame(
+      "$p_1$" = p1set,
+      dum,
+      check.names = FALSE
+    )
+
+    colnames(tab) <- c("$p_1$", as.character(nset))
+
+    hspan <- lnset + 1
+    names(hspan) <- paste0("$\\\\alpha =$ ", alphaset[i], " -- ", hnames2[k])
+
+    out <- kbl(
+      tab,
+      format = "latex",
+      booktabs = TRUE,
+      escape = FALSE,
+      row.names = FALSE,
+      digits = 2,
+      align = c("c", rep("c", lnset))
+    ) |>
+      add_header_above(
+        c(" " = 1, "$T$" = lnset),
+        escape = FALSE,
+        line = TRUE,
+        line_sep = 0
+      ) |>
+      add_header_above(
+        header = hspan,
+        escape = FALSE,
+        line = FALSE,
+        line_sep = 0,
+        align = "l"
+      )
+
+    cat(out)
+ #   cat("\n")
+  }
+  cat("\\bigskip\n")
+}
+@
+\end{center}
+
+\newpage
+
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+\section{Section A.4 of the Supplement}
+%%%%  ***************************************************************************************************
+%%%%  ***************************************************************************************************
+
+%%%%  ***************************************************************************************************
+\subsection{Table A.4}
+%%%%  ***************************************************************************************************
+
+\begin{center}
+<<Table A.4, results='asis'>>=
+load('Table_A4.RData')
+
+for(i in 1:laset){
+  for(k in 3:4){
+    dum <- perci1[, k, , i, drop = FALSE]
+    dum <- matrix(dum, nrow = lp1set, ncol = lnset,
+                  dimnames = list(p1set, nset))
+    dum <- as.data.frame(dum, check.names = FALSE)
+
+    tab <- data.frame(
+      "$p_1$" = p1set,
+      dum,
+      check.names = FALSE
+    )
+
+    colnames(tab) <- c("$p_1$", as.character(nset))
+
+    hspan <- lnset + 1
+    names(hspan) <- paste0("$\\\\alpha =$ ", alphaset[i], " -- ", hnames2[k])
+
+    out <- kbl(
+      tab,
+      format = "latex",
+      booktabs = TRUE,
+      escape = FALSE,
+      row.names = FALSE,
+      digits = 2,
+      align = c("c", rep("c", lnset))
+    ) |>
+      add_header_above(
+        c(" " = 1, "$T$" = lnset),
+        escape = FALSE,
+        line = TRUE,
+        line_sep = 0
+      ) |>
+      add_header_above(
+        header = hspan,
+        escape = FALSE,
+        line = FALSE,
+        line_sep = 0,
+        align = "l"
+      )
+
+    cat(out)
+ #   cat("\n")
+  }
+  cat("\\bigskip\n")
+}
+@
+\end{center}
+\end{document} 
+
