@@ -148,11 +148,11 @@ make_cell <- function(x, j, i){
 
 %%%  ***************************************************************************************************
 %%%  ***************************************************************************************************
-\section{Section 5 and Section B.1 of the Supplement}
+\section{Section 4 and Section B.1 of the Supplement}
 %%%  ***************************************************************************************************
 %%%  ***************************************************************************************************
-<<Section 5>>=
- load('Section_5_B1.RData')
+<<Section 4>>=
+ load('Section_4_B1.RData');
 ppnames <- c('R0p','C0p','R1p','C1p','R1p2','C1p2')
 casenames <- paste('case',rep(1:4,each=2),rep(1:2,2),sep='.') 
 rRES <- array(NA_real_,dim=c(lnset,lp1set,length(ppnames)))
@@ -173,7 +173,7 @@ pnames2 <- c('$\\hat\\R_0$','$\\hat\\C_0$','$\\tilde\\R_0$','$\\tilde\\C_0$','$\
 
 
 \begin{center}
-<<Figure 4.1, dependson='Section 5'>>=
+<<Figure 4.1, dependson='Section 4'>>=
 for(i in c(5,6)){ 
   dum <- mRES[,,i]/mRES[,,i+2];
   a   <- min(min(dum),1)
@@ -192,7 +192,7 @@ for(i in c(5,6)){
 %%-----------------------------------------------------------------------
 
 \begin{center}
-<<Figure 4.2, dependson='Section 5'>>=
+<<Figure 4.2, dependson='Section 4'>>=
 for(i in c(1,2)){ 
   dum <- mRES[,,i]/mRES[,,i+2];
   a   <- min(min(dum),1)
@@ -211,7 +211,7 @@ for(i in c(1,2)){
 %%-----------------------------------------------------------------------
 
 \begin{center}
-<<Figure B.1, dependson='Section 5'>>=
+<<Figure B.1, dependson='Section 4'>>=
 for(i in c(7,8)){ 
   dum <- mRES[,,i]/mRES[,,i+2];
   a   <- min(min(dum),1)
@@ -233,7 +233,7 @@ for(i in c(7,8)){
 \subsection{Tables~B.1--B.8 of the Supplement}
 %% ----------------------------------------------------------------------------
 \phantom{.}\\
-<<Tables B.1-B.8, results='asis', echo=FALSE, message=FALSE, warning=FALSE, dependson='Section 5'>>=
+<<Tables B.1-B.8, results='asis', echo=FALSE, message=FALSE, warning=FALSE, dependson='Section 4'>>=
 
 ## first row: R-tables
 iset_R <- c(1, 5, 7)
@@ -619,5 +619,271 @@ for(i in 1:laset){
 }
 @
 \end{center}
-\end{document} 
+\newpage
 
+%%%  ***************************************************************************************************
+%%%  ***************************************************************************************************
+\section{Section 5 and Section C of the Supplement}
+%%%  ***************************************************************************************************
+%%%  ***************************************************************************************************
+
+<<oecd_0>>=
+inv.method <- 'qr'   # matrix inversion method
+tol        <- 1e-17  # tolerance for matrix inversion
+
+pnames2 <- c('$\\hat\\R_0$', '$\\hat\\C_0$', '$\\tilde\\R_0$', '$\\tilde\\C_0$', '$\\hat\\R_1$', '$\\hatC_1$', '$\\tilde\\R_1$', '$\\tilde\\C_1$', '$\\proj\\R_1$', '$\\proj\\C_1$')
+## ****************************************************************************
+## PREPROCESSING
+
+dat <- read.csv("data2.csv",stringsAsFactors=TRUE)
+
+country  <- levels(dat$LOCATION)
+subject  <- levels(dat$SUBJECT)
+TIME     <- levels(dat$TIME)
+p1 <- length(country)
+p2 <- length(subject)
+
+tabt  <- table(dat$TIME)
+tgood <- TIME[(tabt==p1*p2)]  # selects times common to all the series  
+tgood <- tgood[29:100] # starts from the introduction of EURO
+n  <- length(tgood)
+
+X <- array(0,c(p1,p2,n),dimnames=list(country,subject,tgood))
+
+for(i in 1:p1){ # rows/countries
+  for(j in 1:p2){ # columns/indicators
+    ind <- (dat[,1]==country[i] & dat[,2]==subject[j]) 
+    dum <- dat[ind,3:4]
+    ig  <- dum[,1] %in% tgood
+    X[i,j, ] <- dum[ig,2]
+    if(!(j %in% c(4:5)))  X[i,j, ] <- log(X[i,j, ]) 
+    if(j %in% c(1:6))  X[i,j, ] <- residuals(lm(X[i,j, ] ~ I(1:n))) 
+  }
+}
+vX <- apply(X,MARGIN=c(1,2),FUN=var)
+sX <- apply(X,MARGIN=c(1,2),FUN=function(x){sum((x-mean(x))^2)})
+
+## *****************************************************************
+
+Xold <- X
+X    <- Xold[c(-5,-9,-10,-14),c(-3,-4,-6),]
+country_name <- country[c(-5,-9,-10,-14)]
+subject_name <- subject[c(-3,-4,-6)]
+
+
+dx <- dim(X) 
+p1 <- dx[1]  # rows of X
+p2 <- dx[2]  # columns of X
+n  <- dx[3]  # sample size
+
+@
+
+%%-----------------------------------------------------------------------
+\subsection{Figure 5.1}
+%%-----------------------------------------------------------------------
+<<Model, warning=FALSE, results='hide'>>=
+## Estimated Factors --------------------------------------------------------
+source('Factors_V16.R')
+res <- FactEst2(X,2,2,2,1,inv.method=inv.method,tol=tol, fix.refined=FALSE)
+hr.1 <- res$hest$p1['hr1p'];
+hc.1 <- res$hest$p1['hc1p'] 
+hr.0 <- res$hest$p1['hr0p'] 
+hc.0 <- res$hest$p1['hc0p'];
+@
+
+\begin{center}
+<<Figure 5.1,fig.dim=c(4,4),out.width='0.4\\linewidth', dependson='Model'>>=
+plot(res$eigMR1p,type='b',lty=2,col=4,pch=16,ylab="Eigenvalue");grid()
+ legend('topright',legend=pnames2[7],adj=0.5)
+plot(res$eigMC1p,type='b',lty=2,col=4,pch=16,ylab="Eigenvalue");grid()
+ legend('topright',legend=pnames2[8],adj=0.5)
+plot(res$eigMR0p,type='b',lty=2,col=4,pch=16,ylab="Eigenvalue");grid()
+  legend('topright',legend=pnames2[3],adj=0.5)
+plot(res$eigMC0p,type='b',lty=2,col=4,pch=16,ylab="Eigenvalue");grid()
+  legend('topright',legend=pnames2[4],adj=0.5)
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure 5.2}
+%%-----------------------------------------------------------------------
+\begin{center}
+<<Figure 5.2,fig.dim=c(5,5),out.width='0.5\\linewidth', dependson='Model'>>=
+ix <- seq(2002,2020,by=5)
+par(mfrow=c(hr.1,hc.1), mai=0.02*c(1,1,1,1),omi=c(0.3,0.1,0.,0))
+for(i in 1:hr.1){
+  for(j in 1:hc.1){
+    dum <- ts(c(res$F1phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    plot.ts(dum,col=4,xaxt='n',yaxt='n');grid(nx=0,ny=3)
+    abline(v=ix,col = "lightgray", lty = "dotted")
+    if(i == hr.1) axis(1,at=ix,labels=paste(ix,'Q1',sep=':'))
+  }
+}
+@
+\end{center}
+
+
+\newpage
+
+%%-----------------------------------------------------------------------
+\subsection{Figure 5.3}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure 5.3,fig.dim=c(5,5),out.width='0.45\\linewidth', dependson='Model'>>=
+maxC1phat <- varimax(res$C1phat)$loadings
+maxC1phat[,2] <- -maxC1phat[,2]
+rownames(maxC1phat) <- subject_name
+heatmap(maxC1phat,Colv=NA,scale="none",margins = c(3, 8))
+#
+maxR0phat <- varimax(res$R0phat)$loadings
+maxR0phat[,2] <- -maxR0phat[,2]
+rownames(maxR0phat)  <- country_name
+heatmap(maxR0phat,Colv=NA,scale="none")
+@
+\end{center}
+
+\newpage
+
+%%-----------------------------------------------------------------------
+\subsection{Figure C.1}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.1,fig.dim=c(10,10),out.width='0.9\\linewidth', dependson='Model'>>=
+par(mfrow=c(p1,p2), mai=0.01*c(1,1,1,1))
+for(i in 1:p1){
+	for(j in 1:p2){
+      plot((X[i,j,]),type='l',lwd=0.5,xaxt='n',yaxt='n',col=4);grid()	
+      if(j==1) legend('topleft',legend=country_name[i],box.lty=0,inset=c(-0.1,-0.05),text.font=2)
+      if(i==1) legend('topright',legend=subject_name[j],box.lty=0,,inset=c(-0.02,-0.05),text.font=2)
+	}
+}
+@
+\end{center}
+
+\newpage
+
+%%-----------------------------------------------------------------------
+\subsection{Figure C.2}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.2, fig.dim=c(5,5),out.width='0.5\\linewidth', dependson='Model'>>=
+par(mfrow=c(hr.1,hc.1), mai=0.02*c(1,1,4,1),omi=c(0.3,0.3,0.,0.1))
+for(i in 1:hr.1){
+  for(j in 1:hc.1){
+    dum <- ts(c(res$F1phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    acf(dum,16,lwd=lwd.acf,col=col.acf,xlim=c(0.25,4),ylim=c(-1,1),main='',xaxt=ifelse(i==4,'s','n'),yaxt=ifelse(j==1,'s','n'));grid();
+    if(i == hr.1) axis(1,at=1:16)
+  }
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure C.3}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.3, fig.dim=c(5,5),out.width='0.5\\linewidth', dependson='Model'>>=
+par(mfrow=c(hr.1,hc.1), mai=0.02*c(1,1,4,1),omi=c(0.3,0.3,0.,0.1))
+for(i in 1:hr.1){
+  for(j in 1:hc.1){
+    dum <- ts(c(res$F1phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    pacf(dum,16,lwd=lwd.acf,col=col.acf,ylim=c(-1,1),main='',xaxt=ifelse(i==4,'s','n'),yaxt=ifelse(j==1,'s','n'));grid();
+    if(i == hr.1) axis(1,at=1:16)
+  }
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Table C.2}
+%%-----------------------------------------------------------------------
+\begin{center}
+<<Table C.2, output='asis', dependson='Model'>>=
+tabC2 <- matrix(c(res$C0phat),1,p2)
+colnames(tabC2) <- subject_name
+ kbl(
+    tabC2,
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE,
+    row.names = FALSE,
+    digits = 4,
+    align = 'c'
+  ) 
+@
+\end{center}
+\newpage
+%%-----------------------------------------------------------------------
+\subsection{Figure C.4}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.4, fig.dim=c(5,5),out.width='0.5\\linewidth', dependson='Model'>>=
+ix <- seq(2002,2020,by=5)
+par(mfrow=c(hr.0,hc.0), mai=0.02*c(1,1,1,1),omi=c(0.3,0.1,0.,0))
+for(i in 1:hr.0){
+  for(j in 1:hc.0){
+    dum <- ts(-c(res$F0phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    plot.ts(dum,col=4,xaxt='n',yaxt='n');grid(nx=0,ny=3)
+    abline(v=ix,col = "lightgray", lty = "dotted")
+    if(i == hr.0) axis(1,at=ix,labels=paste(ix,'Q1',sep=':'))
+  }
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure C.5}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.5, fig.dim=c(4,6),out.width='0.4\\linewidth', dependson='Model'>>=
+par(mfrow=c(hr.0,hc.0), mai=0.02*c(1,1,4,1),omi=c(0.3,0.3,0.,0.1))
+for(i in 1:hr.0){
+  for(j in 1:hc.0){
+    dum <- ts(c(res$F0phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    acf(dum,16,lwd=lwd.acf,col=col.acf,xlim=c(0.25,4),ylim=c(-1,1),main='',ci=0.95,xaxt=ifelse(i==4,'s','n'),yaxt=ifelse(j==1,'s','n'));grid();
+    if(i == hr.0) axis(1,at=1:16)
+  }
+}
+@
+\end{center}
+
+
+\newpage 
+%%-----------------------------------------------------------------------
+\subsection{Figure C.6}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.6, fig.dim=c(4,6),out.width='0.4\\linewidth', dependson='Model'>>=
+par(mfrow=c(hr.0,hc.0), mai=0.02*c(1,1,4,1),omi=c(0.3,0.3,0.,0.1))
+for(i in 1:hr.0){
+  for(j in 1:hc.0){
+    dum <- ts(c(res$F0phat[i,j,]),start=c(2002,1),end=c(2019,4),frequency=4)
+    pacf(dum,16,lwd=lwd.acf,col=col.acf,xlim=c(0.25,4),ylim=c(-1,1),main='',ci=0.95,xaxt=ifelse(i==4,'s','n'),yaxt=ifelse(j==1,'s','n'));grid();
+    if(i == hr.0) axis(1,at=1:16)
+  }
+}
+@
+\end{center}
+
+%%-----------------------------------------------------------------------
+\subsection{Figure C.7}
+%%-----------------------------------------------------------------------
+
+\begin{center}
+<<Figure C.7, fig.dim=c(4,6),out.width='0.4\\linewidth', dependson='Model'>>=
+maxR0phat <- varimax(res$R0phat)$loadings
+maxR0phat[,2] <- -maxR0phat[,2]
+rownames(maxR0phat)  <- country_name
+heatmap(maxR0phat,Colv=NA,scale="none")
+@
+\end{center}
+
+
+\end{document} 
