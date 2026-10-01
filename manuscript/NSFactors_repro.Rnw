@@ -152,7 +152,7 @@ make_cell <- function(x, j, i){
 %%%  ***************************************************************************************************
 %%%  ***************************************************************************************************
 <<Section 4>>=
- load('Section_4_B1.RData');
+ load('../output/Section_4_B1.RData');
 ppnames <- c('R0p','C0p','R1p','C1p','R1p2','C1p2')
 casenames <- paste('case',rep(1:4,each=2),rep(1:2,2),sep='.') 
 rRES <- array(NA_real_,dim=c(lnset,lp1set,length(ppnames)))
@@ -288,7 +288,7 @@ cat("\\noalign{\\vskip 2em}\n")
 %% ----------------------------------------------------------------------------
 \begin{center}
 <<Figure B.2>>=
- load('Section_B2.RData');
+ load('../output/Section_B2.RData');
  for(i in c(1,2,5:8)){ 
   dum <- mRES[,,i]/mRES[,,i+2];
   a   <- min(min(dum),1)
@@ -358,7 +358,7 @@ cat("\\noalign{\\vskip 2em}\n")
 
 \begin{center}
 <<Figure B.3, fig.dim=c(10,6),out.width='0.99\\linewidth'>>=
-load('Section_B3.RData');
+load('../output/Section_B3.RData');
 hnames2 <- c('$h_{R_0}$','$h_{C_0}$','$h_{R_1}$','$h_{C_1}$')
 a <- min(percs)
 par(mfrow=c(4,lp1set),omi=c(0.5,0.5,0.5,0),mai=c(0,0,0,0))
@@ -393,7 +393,7 @@ mtext(text='$T$',side=1,at=-4,line=2.5)
 
 \begin{center}
 <<Table A.1, results='asis'>>=
- load('Table_A1.RData')
+ load('../output/Table_A1.RData')
 for(i in 1:3){
 for(k in 1:2){
   dum <- perci[,k,,i]
@@ -445,7 +445,7 @@ cat('\\bigskip\n')
 
 \begin{center}
 <<Table A.2, results='asis'>>=
-load('Table_A2.RData')
+load('../output/Table_A2.RData')
 for(i in 1:3){
 for(k in 3:4){
   dum <- perci[,k,,i]
@@ -504,7 +504,7 @@ cat('\\bigskip\n')
 
 \begin{center}
 <<Table A.3, results='asis'>>=
-load('Table_A3.RData')
+load('../output/Table_A3.RData')
 
 for(i in 1:laset){
   for(k in 3:4){
@@ -569,7 +569,7 @@ for(i in 1:laset){
 
 \begin{center}
 <<Table A.4, results='asis'>>=
-load('Table_A4.RData')
+load('../output/Table_A4.RData')
 
 for(i in 1:laset){
   for(k in 3:4){
@@ -635,7 +635,7 @@ pnames2 <- c('$\\hat\\R_0$', '$\\hat\\C_0$', '$\\tilde\\R_0$', '$\\tilde\\C_0$',
 ## ****************************************************************************
 ## PREPROCESSING
 
-dat <- read.csv("data2.csv",stringsAsFactors=TRUE)
+dat <- read.csv("../data/OECDdata.csv",stringsAsFactors=TRUE)
 
 country  <- levels(dat$LOCATION)
 subject  <- levels(dat$SUBJECT)
@@ -683,7 +683,7 @@ n  <- dx[3]  # sample size
 %%-----------------------------------------------------------------------
 <<Model, warning=FALSE, results='hide'>>=
 ## Estimated Factors --------------------------------------------------------
-source('Factors_V16.R')
+source('../code/Factors_V16.R')
 res <- FactEst2(X,2,2,2,1,inv.method=inv.method,tol=tol, fix.refined=FALSE)
 hr.1 <- res$hest$p1['hr1p'];
 hc.1 <- res$hest$p1['hc1p'] 

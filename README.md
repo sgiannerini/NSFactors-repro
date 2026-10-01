@@ -24,8 +24,11 @@ We validate our theory through an application to a set of multinational macroeco
           the R files contained in the `code` directory. Please take a look at the `setup` chunk to learn about the 
           configuration used to produce the figures. In particular, notice the use of `dev='tikz'` and `pdfcrop`.
        
-3.  `data` directory - This directory will generally hold the real data files 
-
+3.  `data` directory - This directory contains the real data files
+      
+      - `OECDdata.csv`: 7 macroeconomic indicators for 10 OECD countries, Australia, Austria, Canada, Finland, France, Germany, New Zealand, Norway, Sweden and UK.
+         Data are recorded on a quarterly basis between 2002:Q1 until 2019:Q4.
+  
 4.  `code` directory - It contains 
 
       - `Factors_V16.R`  - The workhorse library that includes 
@@ -36,7 +39,7 @@ We validate our theory through an application to a set of multinational macroeco
     Also, it contains the following scripts that can be sourced directly to produce the `RData` files
     included in the `output` directory:
     
-      - `Section_5_B1.R`
+      - `Section_4_B1.R`
       - `Section_B2.R`
       - `Section_B3.R`
       - `Table_A1.R`
@@ -47,7 +50,7 @@ We validate our theory through an application to a set of multinational macroeco
 5.  `output` directory - It contains the outputs of the corresponding `R` scripts contained in the `code` directory.
     The outputs are used inside `NSFactors_repro.Rnw` to produce figures and tables.
 
-      - `Section_5_B1.RData`
+      - `Section_4_B1.RData`
       - `Section_B2.RData`
       - `Section_B3.RData`
       - `Table_A1.RData`
