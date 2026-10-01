@@ -23,7 +23,8 @@ We validate our theory through an application to a set of multinational macroeco
        - `NSFactors_repro.Rnw`: Rnw file to reproduce all the figures and tables of both the main article and the Supplement.
           It uses the `RData` contained in the `output` directory, which can be produced by sourcing
           the R files contained in the `code` directory. Please take a look at the `setup` chunk to learn about the 
-          configuration used to produce the figures. In particular, notice the use of `dev='tikz'` and `pdfcrop`.
+          configuration used to produce the figures. In particular, notice the use of `pdfcrop` and `dev='tikz'`. If you want to speed up compilation
+          you can use `dev='pdf'`, instead.
        
 3.  `data` directory - This directory contains the real data files
       
