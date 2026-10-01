@@ -3,7 +3,8 @@ NSFactors-repro
 
 This repository contains the code for replication of the results in the paper 
 "Inference in High-Dimensional Matrix-Valued Time Series with Common Stochastic Trends and Multifactor Error Structure" by 
-Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini.
+Lorenzo Trapani, Greta Goracci, Rong Chen and Simone Giannerini. All the figures and tables of both the main article and the Supplement
+can be reproduced by knitting the file `NSFactors_repro.Rnw`. See below for details.
 
 We develop a factor model for high-dimensional matrix-valued time series, where both common stochastic 
 trends and common stationary factors are present. We study the estimation of loading spaces, of the common stochastic trends and factors. 
